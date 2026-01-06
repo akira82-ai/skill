@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.8;
+            color: #2c3e50;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        header .meta {
+            font-size: 0.95em;
+            opacity: 0.95;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .section h2 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 12px;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        .section h3 {
+            color: #764ba2;
+            margin-top: 25px;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .section h4 {
+            color: #495057;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        /* 执行摘要样式 */
+        .executive-summary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 12px;
+            padding: 30px;
+            color: white;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .executive-summary h2 {
+            color: white;
+            border-bottom-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .summary-status {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card .label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .info-card .value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+
+        table th,
+        table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+
+        table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        table tr:hover {
+            background: #e9ecef;
+        }
+
+        /* 图表容器 */
+        .chart-container {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        /* 业务洞察卡片 */
+        .insight-card {
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 5px solid;
+            background: #f8f9fa;
+        }
+
+        .insight-card.critical {
+            background: #fff5f5;
+            border-left-color: #dc3545;
+        }
+
+        .insight-card.warning {
+            background: #fff9e6;
+            border-left-color: #ffc107;
+        }
+
+        .insight-card.info {
+            background: #e7f3ff;
+            border-left-color: #17a2b8;
+        }
+
+        .insight-card.success {
+            background: #e8f5e9;
+            border-left-color: #28a745;
+        }
+
+        .insight-card .insight-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .insight-card .insight-description {
+            color: #495057;
+            line-height: 1.7;
+        }
+
+        .insight-card .insight-suggestion {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #dee2e6;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .insight-card .insight-suggestion:before {
+            content: "💡 建议：";
+            color: #ffc107;
+        }
+
+        /* 统计指标网格 */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-box .stat-name {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .stat-box .stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        /* 徽章样式 */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .badge-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .badge-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        /* 统计术语解释 */
+        .term-explanation {
+            background: #e7f3ff;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #495057;
+        }
+
+        .term-explanation strong {
+            color: #17a2b8;
+        }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-top: 40px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .info-grid,
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.85em;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .section {
+                padding: 20px;
+            }
+        }
+
+        /* 打印样式 */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .section {
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+
+            .chart-container {
+                page-break-inside: avoid;
+            }
+
+            .insight-card {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>{{ title }}</h1>
+            <div class="meta">
+                <span>📅 生成时间：{{ date }}</span>
+                {% if metadata.analyst %} | <span>👤 分析师：{{ metadata.analyst }}</span>{% endif %}
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        {% if results.executive_summary %}
+        <!-- 执行摘要 -->
+        <div class="executive-summary">
+            <h2>📋 核心洞察</h2>
+            <div class="summary-status">
+                <span>总体评价：{{ results.executive_summary.overall_status }}</span>
+            </div>
+            <p style="margin-top: 15px;">共发现 {{ results.executive_summary.total_insights }} 条关键洞察</p>
+
+            {% if results.executive_summary.top_insights %}
+            <h4 style="color: white; margin-top: 20px;">🎯 最需要关注的问题</h4>
+            {% for insight in results.executive_summary.top_insights %}
+            <div class="insight-card critical" style="background: rgba(255,255,255,0.15); border-left-color: white;">
+                <div class="insight-title" style="color: white;">{{ insight.title }}</div>
+                <div class="insight-description" style="color: rgba(255,255,255,0.9);">{{ insight.description }}</div>
+                {% if insight.suggestion %}
+                <div class="insight-suggestion" style="border-top-color: rgba(255,255,255,0.3); color: white;">{{ insight.suggestion }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- 数据概览 -->
+        <div class="section">
+            <h2>📊 数据概览</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="label">数据总行数</div>
+                    <div class="value">{{ "{:,}".format(data_info.rows) }}</div>
+                </div>
+                <div class="info-card">
+                    <div class="label">数据列数</div>
+                    <div class="value">{{ data_info.columns }}</div>
+                </div>
+                <div class="info-card">
+                    <div class="label">分析的指标数</div>
+                    <div class="value">{{ results.num_analyzed | default(0) }}</div>
+                </div>
+            </div>
+        </div>
+
+        {% if results.business_insights %}
+        <!-- 业务洞察 -->
+        <div class="section">
+            <h2>💼 业务洞察</h2>
+            {% for insight in results.business_insights %}
+            <div class="insight-card {{ insight.level }}">
+                <div class="insight-title">{{ insight.title }}</div>
+                <div class="insight-description">{{ insight.description }}</div>
+                {% if insight.suggestion %}
+                <div class="insight-suggestion">{{ insight.suggestion }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if results.summary_stats %}
+        <!-- 核心指标 -->
+        <div class="section">
+            <h2>📈 核心指标</h2>
+            <p style="margin-bottom: 20px; color: #6c757d;">以下表格展示了各指标的关键统计量。这些指标帮助我们了解数据的整体表现。</p>
+            {{ results.summary_stats_table | safe }}
+
+            <div class="term-explanation">
+                <strong>💡 指标解释：</strong>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>平均值（均值）</strong>：所有数据的算术平均，代表整体水平</li>
+                    <li><strong>中位数</strong>：排序后位于中间的值，不受极端值影响，更稳定</li>
+                    <li><strong>标准差</strong>：数据波动的程度，值越大表示数据越不稳定</li>
+                    <li><strong>最小值/最大值</strong>：数据的范围边界</li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if results.distribution %}
+        <!-- 数据分布分析 -->
+        <div class="section">
+            <h2>📉 数据分布情况</h2>
+            <p style="margin-bottom: 20px; color: #6c757d;">了解数据的分布特征有助于我们判断数据的规律性和预测未来趋势。</p>
+
+            {% for col, dist_data in results.distribution.items() %}
+            <h3>{{ col }}</h3>
+
+            {% if dist_data.insights %}
+            {% for insight in dist_data.insights %}
+            <div class="insight-card {{ insight.level }}">
+                <div class="insight-title">{{ insight.title }}</div>
+                <div class="insight-description">{{ insight.description }}</div>
+                {% if insight.suggestion %}
+                <div class="insight-suggestion">{{ insight.suggestion }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            {% if dist_data.shape_stats %}
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <div class="stat-name">偏度（对称性）</div>
+                    <div class="stat-value">{{ "%.2f"|format(dist_data.shape_stats.skewness) }}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-name">峰度（集中度）</div>
+                    <div class="stat-value">{{ "%.2f"|format(dist_data.shape_stats.kurtosis) }}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if dist_data.normality_tests %}
+            <h4>分布规律性检验</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>检验方法</th>
+                        <th>统计量</th>
+                        <th>显著性</th>
+                        <th>是否符合正态分布</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for test_name, test_result in dist_data.normality_tests.items() %}
+                    <tr>
+                        <td>{{ test_name.replace('_', ' ').title() }}</td>
+                        <td>{{ "%.4f"|format(test_result.statistic) if test_result.statistic else "N/A" }}</td>
+                        <td>{{ "%.4f"|format(test_result.p_value) if test_result.p_value else "N/A" }}</td>
+                        <td>
+                            {% if test_result.is_normal %}
+                            <span class="badge badge-success">✓ 符合</span>
+                            {% else %}
+                            <span class="badge badge-warning">✗ 不符合</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            {% if dist_data.chart %}
+            <div class="chart-container">
+                {{ dist_data.chart | safe }}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if results.outliers %}
+        <!-- 异常数据识别 -->
+        <div class="section">
+            <h2>🔍 异常数据识别</h2>
+            <p style="margin-bottom: 20px; color: #6c757d;">异常数据可能是特殊情况、数据录入错误，或者需要特别关注的业务问题。</p>
+
+            {% for col, outlier_data in results.outliers.items() %}
+            <h3>{{ col }}</h3>
+
+            {% if outlier_data.insights %}
+            {% for insight in outlier_data.insights %}
+            <div class="insight-card {{ insight.level }}">
+                <div class="insight-title">{{ insight.title }}</div>
+                <div class="insight-description">{{ insight.description }}</div>
+                {% if insight.suggestion %}
+                <div class="insight-suggestion">{{ insight.suggestion }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <div class="stat-name">检测方法</div>
+                    <div class="stat-value" style="font-size: 1.2em;">{{ outlier_data.method }}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-name">发现异常数据</div>
+                    <div class="stat-value">{{ outlier_data.outlier_count }} 个</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-name">占比</div>
+                    <div class="stat-value">{{ "%.2f"|format(outlier_data.outlier_percentage) }}%</div>
+                </div>
+            </div>
+
+            {% if outlier_data.outlier_count > 0 %}
+            <p style="margin-top: 15px;">
+                <strong>正常范围：</strong>
+                下限 {{ "%.2f"|format(outlier_data.lower_bound) }} ~ 上限 {{ "%.2f"|format(outlier_data.upper_bound) }}
+            </p>
+            {% endif %}
+
+            {% if outlier_data.chart %}
+            <div class="chart-container">
+                {{ outlier_data.chart | safe }}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if results.group_comparison %}
+        <!-- 分组对比分析 -->
+        <div class="section">
+            <h2>👥 分组对比分析</h2>
+            <p style="margin-bottom: 20px; color: #6c757d;">通过对比不同组别的表现，可以发现差异、识别最佳实践，为决策提供依据。</p>
+
+            {% for col, comparison in results.group_comparison.items() %}
+            <h3>{{ col }} 按 {{ comparison.group_col }} 分组</h3>
+
+            {% if comparison.insights %}
+            {% for insight in comparison.insights %}
+            <div class="insight-card {{ insight.level }}">
+                <div class="insight-title">{{ insight.title }}</div>
+                <div class="insight-description">{{ insight.description }}</div>
+                {% if insight.suggestion %}
+                <div class="insight-suggestion">{{ insight.suggestion }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <p style="margin: 15px 0;"><strong>分析的指标：</strong> {{ comparison.value_col }}</p>
+            <p style="margin: 15px 0;"><strong>分组依据：</strong> {{ comparison.group_col }}</p>
+            <p style="margin: 15px 0;"><strong>组别数量：</strong> {{ comparison.num_groups }}</p>
+
+            {% if comparison.group_stats_table %}
+            <h4>各组详细数据</h4>
+            {{ comparison.group_stats_table | safe }}
+            {% endif %}
+
+            {% if comparison.test_result %}
+            <h4>差异显著性检验</h4>
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <div class="stat-name">检验方法</div>
+                    <div class="stat-value" style="font-size: 1.1em;">{{ comparison.test_result.test_name }}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-name">统计量</div>
+                    <div class="stat-value">{{ "%.4f"|format(comparison.test_result.statistic) }}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-name">显著性水平</div>
+                    <div class="stat-value">{{ "%.4f"|format(comparison.test_result.p_value) }}</div>
+                </div>
+                {% if comparison.test_result.effect_size %}
+                <div class="stat-box">
+                    <div class="stat-name">效应量</div>
+                    <div class="stat-value">{{ "%.4f"|format(comparison.test_result.effect_size) }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <strong>检验结果：</strong>
+                {% if comparison.test_result.is_significant %}
+                <span class="badge badge-success">存在显著差异</span>
+                {% else %}
+                <span class="badge badge-info">无显著差异</span>
+                {% endif %}
+                <span style="margin-left: 10px; color: #495057;">{{ comparison.test_result.interpretation }}</span>
+            </div>
+            {% endif %}
+
+            {% if comparison.chart %}
+            <div class="chart-container">
+                {{ comparison.chart | safe }}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if results.correlation %}
+        <!-- 关联性分析 -->
+        <div class="section">
+            <h2>🔗 关联性分析</h2>
+            <p style="margin-bottom: 20px; color: #6c757d;">关联性分析帮助我们发现不同指标之间的关系。相关性越强（接近1或-1），说明两个指标的关系越密切。</p>
+            <div class="chart-container">
+                {{ results.correlation.chart | safe }}
+            </div>
+            <div class="term-explanation">
+                <strong>💡 如何解读相关性：</strong>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>相关性系数接近 <strong>1</strong>：强正相关（一个增加，另一个也增加）</li>
+                    <li>相关性系数接近 <strong>-1</strong>：强负相关（一个增加，另一个减少）</li>
+                    <li>相关性系数接近 <strong>0</strong>：无明显关联</li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if results.warnings %}
+        <!-- 需要注意的问题 -->
+        <div class="section">
+            <h2>⚠️ 需要注意的问题</h2>
+            {% for warning in results.warnings %}
+            <div class="insight-card warning">
+                <div class="insight-description">{{ warning }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        <p><strong>本报告由数据分析系统自动生成</strong></p>
+        <p style="margin-top: 10px;">如有疑问，请联系数据分析师进行解读 | Claude Code - 描述性统计分析工具</p>
+    </div>
+</body>
+</html>
