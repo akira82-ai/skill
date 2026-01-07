@@ -1,6 +1,6 @@
 """HTML report generation module.
 
-Creates interactive HTML reports with embedded Plotly charts
+Creates product-grade HTML reports with embedded Matplotlib charts
 and business-friendly insights.
 """
 
@@ -11,32 +11,20 @@ from datetime import datetime
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader, Template
 
-from visualization.plotly_charts import (
-    figure_to_html,
-    create_histogram,
-    create_boxplot,
-    create_qqplot,
-    create_correlation_heatmap,
-    create_outlier_plot,
-)
-from core.business_interpreter import (
-    interpret_basic_stats,
-    interpret_distribution,
-    interpret_outliers,
-    interpret_group_comparison,
-    generate_executive_summary,
-    BusinessInsight,
-)
+# Import new template context builder (relative import)
+import sys
+sys.path.insert(0, str(Path(__file__).parent))
+from template_context import build_template_context
 
 
 def generate_html_report(
     df: pd.DataFrame,
     results: Dict[str, Any],
     output_path: str,
-    title: str = "Descriptive Statistics Report",
+    title: str = "描述性统计分析报告",
     metadata: Optional[Dict[str, Any]] = None
 ):
-    """Generate a complete HTML report.
+    """Generate a complete HTML report using product-grade template.
 
     Args:
         df: Input DataFrame
@@ -45,6 +33,9 @@ def generate_html_report(
         title: Report title
         metadata: Optional metadata (date, analyst, etc.)
     """
+    # Build template context using the new context builder
+    context = build_template_context(df, results, title, metadata)
+
     # Get template directory
     template_dir = Path(__file__).parent / 'templates'
 
@@ -57,19 +48,6 @@ def generate_html_report(
     except Exception:
         # If template doesn't exist, use embedded template
         template = Template(_get_default_template())
-
-    # Prepare context
-    context = {
-        'title': title,
-        'date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'metadata': metadata or {},
-        'data_info': {
-            'rows': len(df),
-            'columns': len(df.columns),
-            'column_names': list(df.columns),
-        },
-        'results': results,
-    }
 
     # Render template
     html_content = template.render(**context)

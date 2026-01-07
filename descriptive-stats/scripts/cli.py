@@ -29,14 +29,12 @@ from core.statistics import compute_basic_stats, compute_summary_table
 from core.distribution import test_normality, distribution_summary
 from core.outliers import detect_outliers_iqr, detect_outliers_zscore, consensus_outliers
 from core.group_analysis import compare_groups, group_comparison_table
-from visualization.plotly_charts import (
+from visualization.matplotlib_charts import (
     create_histogram,
     create_boxplot,
-    create_violinplot,
     create_qqplot,
-    create_correlation_heatmap,
     create_outlier_plot,
-    figure_to_html,
+    figure_to_base64,
 )
 from reporting.terminal import (
     display_data_summary,
@@ -246,9 +244,9 @@ def run_analysis(
             if output_terminal:
                 display_distribution_results(dist_summary, column_name=col)
 
-            # Create histogram and Q-Q plot
-            hist_fig = create_histogram(df[col], title=f"Distribution: {col}")
-            qq_fig = create_qqplot(df[col], title=f"Q-Q Plot: {col}")
+            # Create histogram and Q-Q plot using Matplotlib
+            hist_base64 = create_histogram(df[col], title=f"{col} 分布图")
+            qq_base64 = create_qqplot(df[col], title=f"{col} Q-Q图")
 
             # Generate business insights for distribution
             shape_stats = dist_summary['shape_stats']
@@ -261,10 +259,23 @@ def run_analysis(
             )
             all_business_insights.extend(dist_insights)
 
+            # Combine charts as base64 images in HTML img tags
+            chart_html = f'''
+<div style="margin: 15px 0;">
+    <img src="data:image/png;base64,{hist_base64}"
+         alt="{col} 分布图"
+         style="width:100%;max-width:800px;height:auto;border:1px solid #e9ecef;border-radius:8px;">
+</div>
+<div style="margin: 15px 0;">
+    <img src="data:image/png;base64,{qq_base64}"
+         alt="{col} Q-Q图"
+         style="width:100%;max-width:800px;height:auto;border:1px solid #e9ecef;border-radius:8px;">
+</div>'''
+
             distribution_results[col] = {
                 'shape_stats': shape_stats,
                 'normality_tests': dist_summary['normality_tests'],  # Already in dict format
-                'chart': figure_to_html(hist_fig) + figure_to_html(qq_fig),
+                'chart': chart_html,
                 'insights': [i.to_dict() for i in dist_insights],  # Add insights to results
             }
 
@@ -280,8 +291,8 @@ def run_analysis(
             if output_terminal:
                 display_outliers(outliers, column_name=col)
 
-            # Create outlier plot
-            outlier_fig = create_outlier_plot(df[col], outliers.outlier_indices, title=f"Outliers: {col}")
+            # Create outlier plot using Matplotlib
+            outlier_base64 = create_outlier_plot(df[col], outliers.outlier_indices, title=f"{col} 异常值检测")
 
             # Generate business insights for outliers
             outlier_insights = interpret_outliers(
@@ -292,13 +303,21 @@ def run_analysis(
             )
             all_business_insights.extend(outlier_insights)
 
+            # Convert to HTML img tag
+            chart_html = f'''
+<div style="margin: 15px 0;">
+    <img src="data:image/png;base64,{outlier_base64}"
+         alt="{col} 异常值检测"
+         style="width:100%;max-width:1000px;height:auto;border:1px solid #e9ecef;border-radius:8px;">
+</div>'''
+
             outlier_results[col] = {
                 'method': outliers.method,
                 'outlier_count': outliers.outlier_count,
                 'outlier_percentage': outliers.outlier_percentage,
                 'lower_bound': outliers.lower_bound,
                 'upper_bound': outliers.upper_bound,
-                'chart': figure_to_html(outlier_fig),
+                'chart': chart_html,
                 'insights': [i.to_dict() for i in outlier_insights],  # Add insights to results
             }
 
@@ -318,8 +337,8 @@ def run_analysis(
             if output_terminal:
                 display_group_comparison(comparison)
 
-            # Create box plot
-            box_fig = create_boxplot(df, group_col, col, title=f"{col} by {group_col}")
+            # Create box plot using Matplotlib
+            box_base64 = create_boxplot(df, group_col, col, title=f"{col} 按 {group_col} 分组")
 
             # Generate business insights for group comparison
             if comparison.test_result:
@@ -349,12 +368,20 @@ def run_analysis(
                 test_result_dict = None
                 group_insights = []
 
+            # Convert to HTML img tag
+            chart_html = f'''
+<div style="margin: 15px 0;">
+    <img src="data:image/png;base64,{box_base64}"
+         alt="{col} 按 {group_col} 分组对比"
+         style="width:100%;max-width:800px;height:auto;border:1px solid #e9ecef;border-radius:8px;">
+</div>'''
+
             group_comparison_results[col] = {
                 'group_col': group_col,
                 'value_col': col,
                 'num_groups': comparison.num_groups,
                 'test_result': test_result_dict,
-                'chart': figure_to_html(box_fig),
+                'chart': chart_html,
                 'insights': [i.to_dict() for i in group_insights],  # Add insights to results
             }
 

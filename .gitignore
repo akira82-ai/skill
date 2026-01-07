@@ -1,1 +1,9 @@
 .DS_Store
+
+# Backup files
+*_backup.*
+*_backup/*
+*副本/
+*.bak
+*.old
+*.tmp
