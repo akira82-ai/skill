@@ -233,8 +233,36 @@ def _build_distribution_section(results: Dict, numeric_cols: List[str]) -> Dict[
         kurtosis = shape_stats.get('kurtosis', 0)
         shape_desc = _describe_distribution(skewness, kurtosis)
 
-        # Charts
+        # Charts - support both Plotly HTML and matplotlib base64 images
         chart_html = dist_data.get('chart', '')
+
+        # Check for new matplotlib base64 format
+        histogram_chart = dist_data.get('histogram_chart', None)
+        qqplot_chart = dist_data.get('qqplot_chart', None)
+
+        # Generate chart HTML for matplotlib images if available
+        if histogram_chart and histogram_chart.get('type') == 'matplotlib_base64':
+            hist_img = f'''<div class="chart-container">
+    <img src="data:image/png;base64,{histogram_chart['image_data']}"
+         alt="{histogram_chart['alt']}"
+         style="max-width:100%;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+    <p class="chart-caption">{histogram_chart['title']}</p>
+</div>'''
+        else:
+            hist_img = chart_html if chart_html else ''
+
+        if qqplot_chart and qqplot_chart.get('type') == 'matplotlib_base64':
+            qq_img = f'''<div class="chart-container">
+    <img src="data:image/png;base64,{qqplot_chart['image_data']}"
+         alt="{qqplot_chart['alt']}"
+         style="max-width:100%;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+    <p class="chart-caption">{qqplot_chart['title']}</p>
+</div>'''
+        else:
+            qq_img = ''
+
+        # Combine charts
+        combined_chart = f"{hist_img}{qq_img}".strip()
 
         # Insights
         insights_list = dist_data.get('insights', [])
@@ -248,7 +276,7 @@ def _build_distribution_section(results: Dict, numeric_cols: List[str]) -> Dict[
                 'p_value': p_value,
                 'is_normal': is_normal
             },
-            'chart': chart_html,
+            'chart': combined_chart,
             'insights': insights_list
         }
 
@@ -277,6 +305,19 @@ def _build_outliers_section(results: Dict, numeric_cols: List[str]) -> Dict[str,
         else:
             quality = "danger"
 
+        # Chart - support both Plotly HTML and matplotlib base64 images
+        chart_obj = outlier_data.get('chart', {})
+        chart_html = chart_obj if isinstance(chart_obj, str) else ''
+
+        # Generate chart HTML for matplotlib base64 image if available
+        if isinstance(chart_obj, dict) and chart_obj.get('type') == 'matplotlib_base64':
+            chart_html = f'''<div class="chart-container">
+    <img src="data:image/png;base64,{chart_obj['image_data']}"
+         alt="{chart_obj['alt']}"
+         style="max-width:100%;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+    <p class="chart-caption">{chart_obj['title']}</p>
+</div>'''
+
         # Insights
         insights_list = outlier_data.get('insights', [])
 
@@ -286,7 +327,7 @@ def _build_outliers_section(results: Dict, numeric_cols: List[str]) -> Dict[str,
             'outlier_count': outlier_data.get('outlier_count', 0),
             'outlier_percentage': outlier_pct,
             'quality': quality,
-            'chart': outlier_data.get('chart', ''),
+            'chart': chart_html,
             'insights': insights_list
         }
 

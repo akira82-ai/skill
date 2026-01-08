@@ -252,9 +252,9 @@
     </header>
 
     <div class="container">
-        <!-- 执行摘要 -->
+        <!-- 分析概要 -->
         <div class="executive-summary">
-            <h2>执行摘要</h2>
+            <h2>分析概要</h2>
             <div class="summary-grid">
                 {% for metric in summary_metrics %}
                 <div class="summary-card">
@@ -265,14 +265,14 @@
             </div>
         </div>
 
-        <!-- 1. 基础统计概览 -->
+        <!-- 1. 基础分析 -->
         <div class="section">
-            <h2>一、基础统计概览</h2>
+            <h2>一、基础分析</h2>
 
             <table>
                 <thead>
                     <tr>
-                        <th>变量</th>
+                        <th>指标</th>
                         <th>均值</th>
                         <th>中位数</th>
                         <th>标准差</th>
@@ -309,15 +309,15 @@
             </div>
         </div>
 
-        <!-- 2. 变量分布分析 -->
+        <!-- 2. 指标特征 -->
         <div class="section">
-            <h2>二、变量分布分析</h2>
+            <h2>二、指标特征</h2>
 
             <h3>2.1 分布形态特征</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>变量</th>
+                        <th>指标</th>
                         <th>偏度 (Skewness)</th>
                         <th>峰度 (Kurtosis)</th>
                         <th>分布特征</th>
@@ -339,7 +339,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th>变量</th>
+                        <th>指标</th>
                         <th>W统计量</th>
                         <th>p值</th>
                         <th>结论</th>
@@ -371,7 +371,7 @@
             {% endfor %}
 
             <div class="insight-box">
-                <h4>分布洞察</h4>
+                <h4>指标特征洞察</h4>
                 {% for col_name, col_data in distribution.by_column.items() %}
                 {% if col_data.insights %}
                 <ul style="padding-left: 20px;">
@@ -391,7 +391,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th>变量</th>
+                        <th>指标</th>
                         <th>正常范围下限</th>
                         <th>正常范围上限</th>
                         <th>异常值数量</th>
@@ -441,107 +441,11 @@
             </div>
         </div>
 
-        <!-- 4. 变量关系分析 (可选) -->
-        {% if correlation is not none and correlation.has_data %}
+        <!-- 4. 关键发现与建议 -->
         <div class="section">
-            <h2>四、变量关系分析</h2>
+            <h2>四、关键发现与业务建议</h2>
 
-            <h3>4.1 相关性分析</h3>
-            <p>以下展示了变量之间的Pearson相关系数：</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>变量对</th>
-                        <th>相关系数</th>
-                        <th>相关性强度</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for insight in correlation.insights %}
-                    <tr>
-                        <td>{{ insight.description }}</td>
-                        <td>
-                            {% if insight.level == 'critical' %}
-                            <span class="badge badge-danger">强相关</span>
-                            {% elif insight.level == 'warning' %}
-                            <span class="badge badge-warning">中等相关</span>
-                            {% elif insight.level == 'info' %}
-                            <span class="badge badge-success">弱相关</span>
-                            {% else %}
-                            <span class="badge badge-success">无相关</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
-            <div class="insight-box">
-                <h4>关系洞察</h4>
-                <ul style="padding-left: 20px;">
-                    {% for insight in correlation.insights %}
-                    <li>{{ insight.description }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- 5. 分组对比分析 (可选) -->
-        {% if group_comparison is not none and group_comparison.has_data %}
-        <div class="section">
-            <h2>五、分组对比分析 (按 {{ group_comparison.group_var }})</h2>
-
-            <h3>5.1 组间差异检验</h3>
-            <table>
-                <tbody>
-                    <tr>
-                        <td><strong>检验方法</strong></td>
-                        <td>{{ group_comparison.test_result.get('test_name', 'N/A') }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>统计量</strong></td>
-                        <td>{{ group_comparison.test_result.get('statistic', 'N/A')|round(4) }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>p值</strong></td>
-                        <td>{{ group_comparison.test_result.get('p_value', 'N/A')|round(4) }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>结论</strong></td>
-                        <td>
-                            {% if group_comparison.test_result.get('is_significant') %}
-                            <span class="badge badge-success">存在显著差异</span>
-                            {% else %}
-                            <span class="badge badge-warning">无显著差异</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="chart-container">
-                {{ group_comparison.chart|safe }}
-            </div>
-
-            <div class="insight-box">
-                <h4>分组洞察</h4>
-                {% if group_comparison.insights %}
-                <ul style="padding-left: 20px;">
-                    {% for insight in group_comparison.insights %}
-                    <li><strong>{{ insight.title }}：</strong>{{ insight.description }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- 6. 关键发现与建议 -->
-        <div class="section">
-            <h2>六、关键发现与业务建议</h2>
-
-            <h3>6.1 关键发现</h3>
+            <h3>4.1 关键发现</h3>
             <div class="insight-box">
                 <ul style="padding-left: 20px;">
                     {% if findings.points %}
@@ -554,7 +458,7 @@
                 </ul>
             </div>
 
-            <h3>6.2 业务建议</h3>
+            <h3>4.2 业务建议</h3>
             <div class="insight-box">
                 <ul style="padding-left: 20px;">
                     {% if recommendations.priority_high %}
@@ -582,11 +486,11 @@
             </div>
         </div>
 
-        <!-- 7. 附录 -->
+        <!-- 5. 附录 -->
         <div class="section">
-            <h2>七、附录</h2>
+            <h2>五、附录</h2>
 
-            <h3>7.1 技术说明</h3>
+            <h3>5.1 技术说明</h3>
             <ul style="padding-left: 20px;">
                 {% for method in technical_notes.methods %}
                 <li>{{ method }}</li>
@@ -595,21 +499,21 @@
                 <li>图表生成: {{ technical_notes.chart_library }}</li>
             </ul>
 
-            <h3>7.2 数据来源</h3>
+            <h3>5.2 数据来源</h3>
             <ul style="padding-left: 20px;">
                 <li>原始文件: {{ file_name }}</li>
-                <li>分析变量: {{ data_info.column_names|join(', ') }}</li>
+                <li>分析指标: {{ data_info.column_names|join(', ') }}</li>
                 <li>样本量: {{ data_info.n_rows }}</li>
             </ul>
 
-            <h3>7.3 免责声明</h3>
+            <h3>5.3 免责声明</h3>
             <p>本报告基于提供的数据进行统计分析，结论仅供参考。实际应用中请结合业务背景和专业判断。</p>
         </div>
 
     </div>
 
     <footer>
-        <p>此报告由描述性统计分析工具自动生成</p>
+        <p>此报告由Claude Skill 统计分析工具自动生成</p>
         <p>生成时间: {{ date }}</p>
     </footer>
 </body>

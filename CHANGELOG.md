@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2025-01-08
+
+### Changed
+- **descriptive-stats**: 优化图表数据传递机制
+  - 将图表数据从内联HTML改为结构化数据格式
+  - 支持分离的直方图和Q-Q图渲染
+  - 改进模板上下文构建器，兼容新旧图表格式
+
+### Fixed
+- **descriptive-stats**: 修复报告模板缺失时的错误处理
+- **descriptive-stats**: 移除硬编码的备用模板，强制使用外部模板文件
+
+### Improved
+- **descriptive-stats**: 简化HTML报告结构
+  - 统一术语（"变量" -> "指标"）
+  - 调整章节编号和标题
+  - 优化报告可读性
+
 ## [1.2.0] - 2025-01-07
 
 ### Changed

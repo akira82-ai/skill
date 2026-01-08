@@ -259,23 +259,23 @@ def run_analysis(
             )
             all_business_insights.extend(dist_insights)
 
-            # Combine charts as base64 images in HTML img tags
-            chart_html = f'''
-<div style="margin: 15px 0;">
-    <img src="data:image/png;base64,{hist_base64}"
-         alt="{col} 分布图"
-         style="width:100%;max-width:800px;height:auto;border:1px solid #e9ecef;border-radius:8px;">
-</div>
-<div style="margin: 15px 0;">
-    <img src="data:image/png;base64,{qq_base64}"
-         alt="{col} Q-Q图"
-         style="width:100%;max-width:800px;height:auto;border:1px solid #e9ecef;border-radius:8px;">
-</div>'''
-
+            # Prepare chart data for template rendering
+            # Save both histogram and QQ plot as separate charts
             distribution_results[col] = {
                 'shape_stats': shape_stats,
                 'normality_tests': dist_summary['normality_tests'],  # Already in dict format
-                'chart': chart_html,
+                'histogram_chart': {
+                    'type': 'matplotlib_base64',
+                    'image_data': hist_base64,
+                    'title': f'{col} 分布图',
+                    'alt': f'{col} 分布图'
+                },
+                'qqplot_chart': {
+                    'type': 'matplotlib_base64',
+                    'image_data': qq_base64,
+                    'title': f'{col} Q-Q图',
+                    'alt': f'{col} Q-Q图'
+                },
                 'insights': [i.to_dict() for i in dist_insights],  # Add insights to results
             }
 
@@ -303,21 +303,19 @@ def run_analysis(
             )
             all_business_insights.extend(outlier_insights)
 
-            # Convert to HTML img tag
-            chart_html = f'''
-<div style="margin: 15px 0;">
-    <img src="data:image/png;base64,{outlier_base64}"
-         alt="{col} 异常值检测"
-         style="width:100%;max-width:1000px;height:auto;border:1px solid #e9ecef;border-radius:8px;">
-</div>'''
-
+            # Prepare chart data for template rendering
             outlier_results[col] = {
                 'method': outliers.method,
                 'outlier_count': outliers.outlier_count,
                 'outlier_percentage': outliers.outlier_percentage,
                 'lower_bound': outliers.lower_bound,
                 'upper_bound': outliers.upper_bound,
-                'chart': chart_html,
+                'chart': {
+                    'type': 'matplotlib_base64',
+                    'image_data': outlier_base64,
+                    'title': f'{col} 异常值检测',
+                    'alt': f'{col} 异常值检测'
+                },
                 'insights': [i.to_dict() for i in outlier_insights],  # Add insights to results
             }
 
