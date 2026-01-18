@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-01-18
+
+### Added
+- **idea-to-post** skill v1.5.0 - 灵感扩展推文生成工具
+  - 渐进式提问（7-10 轮对话）
+  - 框架内化（PREP、SCQA、黄金圈等思考框架）
+  - 信息搜索（初步背景搜索 + 精准深度搜索）
+  - 多平台适配（微信公众号、小红书、Twitter/微博、LinkedIn/脉脉）
+  - 90 分+ 内容标准（核心观点、真实案例、情绪共鸣、独特观点、外部佐证）
+
+### Changed
+- Updated README.md with idea-to-post documentation
+- Bumped version to v1.3.0
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
