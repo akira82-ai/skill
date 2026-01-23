@@ -4,6 +4,40 @@
 
 ## Available Skills
 
+### auto-skill
+
+智能 Skill 路由器 - 根据用户需求自动选择已安装的 skill，或从 skills.sh 搜索安装新 skill。
+
+**功能特性：**
+- 智能分析：自动提取用户请求的关键词和意图分类
+- 本地匹配：优先在已安装的 skills 中查找匹配项
+- 远程搜索：本地无匹配时自动搜索 skills.sh
+- 用户确认：所有需要确认的操作都通过 AskUserQuestion 呈现
+- 自动安装：一键安装并执行选定的 skill
+- 容错机制：最多 3 次重试，失败时提供明确错误信息
+
+**安装方法：**
+
+```bash
+# 复制 skill 目录到 Claude Code skills 目录
+cp -r auto-skill ~/.claude/skills/
+```
+
+**使用方法：**
+
+```
+# 直接描述需求，auto-skill 会自动匹配合适的 skill
+帮我分析这个 Excel 文件
+生成一份 API 文档
+翻译这段文本
+
+# auto-skill 会自动：
+# 1. 分析你的需求
+# 2. 匹配本地 skill 或搜索 skills.sh
+# 3. 呈现选项供选择
+# 4. 安装并执行
+```
+
 ### idea-to-post
 
 灵感扩展推文生成工具 - 将零散的灵感（一句话、几个词、一个模糊的想法）扩展为 90 分+ 的自媒体推文。
