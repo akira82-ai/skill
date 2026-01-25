@@ -4,38 +4,38 @@
 
 ## Available Skills
 
-### auto-skill
+### auto-skills
 
-智能 Skill 路由器 - 根据用户需求自动选择已安装的 skill，或从 skills.sh 搜索安装新 skill。
+自动化技能编排 - 将复杂任务拆解为多个步骤，为每个步骤匹配已安装的 skill 或搜索 skills.sh 安装新 skill，最终生成 Claude Code task list 执行。
 
 **功能特性：**
-- 智能分析：自动提取用户请求的关键词和意图分类
-- 本地匹配：优先在已安装的 skills 中查找匹配项
-- 远程搜索：本地无匹配时自动搜索 skills.sh
-- 用户确认：所有需要确认的操作都通过 AskUserQuestion 呈现
-- 自动安装：一键安装并执行选定的 skill
-- 容错机制：最多 3 次重试，失败时提供明确错误信息
+- 任务拆解：将用户输入拆解为多个顺序执行的子任务
+- 本地匹配：优先使用已安装的 skill
+- 远程搜索：从 skills.sh 搜索并安装新 skill
+- 自动迁移：自动将项目本地 skill 迁移到全局目录
+- 任务跟踪：完整的文件记录和状态跟踪
+- 依赖管理：自动设置任务之间的依赖关系
 
 **安装方法：**
 
 ```bash
 # 复制 skill 目录到 Claude Code skills 目录
-cp -r auto-skill ~/.claude/skills/
+cp -r auto-skills ~/.claude/skills/
 ```
 
 **使用方法：**
 
 ```
-# 直接描述需求，auto-skill 会自动匹配合适的 skill
-帮我分析这个 Excel 文件
-生成一份 API 文档
-翻译这段文本
+# 描述复杂任务，auto-skills 会自动拆解并执行
+帮我写一篇文章去除AI味然后存到本地
+分析这个项目并生成测试用例
 
-# auto-skill 会自动：
-# 1. 分析你的需求
-# 2. 匹配本地 skill 或搜索 skills.sh
-# 3. 呈现选项供选择
-# 4. 安装并执行
+# auto-skills 会自动：
+# 1. 创建任务工作目录
+# 2. 扫描本地 skills
+# 3. 拆解任务为子任务
+# 4. 为每个子任务匹配/搜索 skill
+# 5. 生成 Claude Code task list 执行
 ```
 
 ### idea-to-post

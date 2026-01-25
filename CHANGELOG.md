@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - 2026-01-25
+
+### Added
+- **auto-skills** skill v1.5.0 - 自动化技能编排工具
+  - 任务拆解为多个可执行步骤
+  - 自动匹配本地已安装的 skill
+  - 从 skills.sh 搜索并安装新 skill
+  - 生成 Claude Code task list 执行
+  - 自动迁移项目本地 skill 到全局目录
+  - 完整的文件记录和状态跟踪
+
+### Changed
+- Updated VERSION to v1.5.0
+
 ## [1.3.0] - 2026-01-18
 
 ### Added
