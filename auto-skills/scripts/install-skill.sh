@@ -16,17 +16,26 @@ fi
 
 echo "Installing skill with command: $install_command" >&2
 
-# Execute the install command
-if eval "$install_command" 2>&1; then
-    # ===== 新增：自动迁移到全局目录 =====
-    GLOBAL_SKILLS_DIR="$HOME/.claude/skills"
+# 在 /tmp 下执行安装，避免污染项目目录
+cd /tmp || { echo "Failed to cd to /tmp" >&2; exit 1; }
 
-    # 等待一下确保文件系统同步
+# 创建临时工作目录
+TEMP_WORK_DIR=$(mktemp -d -t skill-install-XXXXXX)
+cd "$TEMP_WORK_DIR" || { echo "Failed to cd to temp dir" >&2; exit 1; }
+
+echo "Working in temporary directory: $TEMP_WORK_DIR" >&2
+
+if eval "$install_command" 2>&1; then
+    # ===== 自动迁移到全局目录 =====
+    GLOBAL_SKILLS_DIR="$HOME/.claude/skills"
+    mkdir -p "$GLOBAL_SKILLS_DIR"
+
+    # 等待文件系统同步
     sleep 1
 
-    # 查找当前目录下的 .agents/skills 目录
+    # 从 /tmp 的临时目录查找 .agents/skills
     if [ -d ".agents/skills" ]; then
-        echo "Checking for locally installed skills..." >&2
+        echo "Migrating skill to global directory..." >&2
 
         # 遍历 .agents/skills 下的所有技能
         for skill_dir in .agents/skills/*; do
@@ -41,11 +50,16 @@ if eval "$install_command" 2>&1; then
                     # 创建全局目录并复制
                     mkdir -p "$global_path"
                     cp -r "$skill_dir"/* "$global_path/"
-                    echo "✓ Migrated '$skill_name' to global directory: ~/.claude/skills/" >&2
+                    echo "✓ Installed '$skill_name' to: ~/.claude/skills/" >&2
                 fi
             fi
         done
     fi
+
+    # 清理临时目录
+    cd /tmp
+    rm -rf "$TEMP_WORK_DIR"
+    echo "Cleaned up temporary files." >&2
     # ===== 迁移结束 =====
 
     echo '{"status": "success", "command": "'"$install_command"'"}'

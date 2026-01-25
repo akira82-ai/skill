@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.1] - 2026-01-25
+
+### Fixed
+- **auto-skills**: 修复 install-skill.sh 在有特殊目录名时安装失败的问题
+  - 将 npx 安装过程移至 /tmp 临时目录执行
+  - 使用 mktemp 创建独立临时工作目录，避免路径冲突
+  - 安装后自动清理临时文件，不污染项目目录
+
+### Changed
+- Updated VERSION to v1.5.1
+- Updated README.md with 安全安装说明
+
 ## [1.5.0] - 2026-01-25
 
 ### Added

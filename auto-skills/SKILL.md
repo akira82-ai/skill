@@ -1,7 +1,7 @@
 ---
 name: auto-skills
 description: 自动化技能编排。将用户任务拆解为多个步骤，为每个步骤匹配已安装的 skill 或搜索 skills.sh 安装新的 skill，最终生成 Claude Code task list 执行。适用于复杂任务的多步骤规划和自动化编排。
-version: 1.5.0
+version: 1.0.0
 allowed-tools: Bash, AskUserQuestion, mcp__firecrawl__firecrawl_search, mcp__firecrawl__firecrawl_scrape, TaskCreate
 model: claude-sonnet-4-20250514
 ---
@@ -19,6 +19,7 @@ model: claude-sonnet-4-20250514
 3. **任务拆解** - 将用户输入拆解为多个顺序执行的子任务
 4. **逐个处理子任务** - 为每个子任务匹配/搜索/安装 skill
 5. **生成执行计划** - 创建 Claude Code task list
+6. **创建任务并确认** - 创建所有 Task 并弹出确认窗口
 
 **设计原则：**
 - 所有文件操作、命令执行通过脚本完成
@@ -229,7 +230,77 @@ bash ~/.claude/skills/auto-skills/scripts/generate-final-plan.sh
 }
 ```
 
-创建完所有 tasks 后，skill 生命周期结束，Claude Code 开始执行 task list。
+**创建任务的代码示例：**
+```javascript
+// 读取 task-plan.json
+const plan = JSON.parse(readFile("task-plan.json"))
+const createdTasks = []
+
+// 创建所有任务
+for (let i = 0; i < plan.tasks.length; i++) {
+  const task = plan.tasks[i]
+  const blockedBy = i > 0 ? [createdTasks[i-1].taskId] : []
+
+  const createdTask = await TaskCreate({
+    subject: task.description,
+    description: task.skillType === "manual"
+      ? task.description
+      : `调用 ${task.skill} ${task.skillType === 'local' ? '(本地)' : '(远程)'}`,
+    activeForm: `正在${task.description}`,
+    addBlockedBy: blockedBy
+  })
+
+  createdTasks.push(createdTask)
+}
+```
+
+### 步骤 8：【新增】最终确认
+
+所有 Task 创建完成后，弹出最终确认窗口，让用户决定是否立即开始执行：
+
+```javascript
+// 构建任务列表摘要
+const taskSummary = createdTasks.map((task, index) => {
+  return `${index + 1}. ${task.subject}`
+}).join("\n")
+
+// 弹出确认窗口
+const response = await AskUserQuestion({
+  questions: [{
+    question: `已创建 ${createdTasks.length} 个任务：
+
+${taskSummary}
+
+是否立即开始执行？`,
+    header: "确认执行",
+    options: [
+      {
+        label: "立即执行",
+        description: "开始执行所有任务，按依赖顺序自动完成"
+      },
+      {
+        label: "稍后执行",
+        description: "保持任务为 pending 状态，稍后手动触发执行"
+      }
+    ],
+    multiSelect: false
+  }]
+})
+
+// 根据用户选择输出相应信息
+if (response.confirmExecute === "立即执行") {
+  console.log(`✅ 已确认，开始执行 ${createdTasks.length} 个任务`)
+} else {
+  console.log(`⏸️ 任务已创建，保持 pending 状态`)
+  console.log(`💡 使用以下命令查看任务：/task-list`)
+}
+```
+
+**注意事项：**
+- 这应该是 auto-skills 的**最后一个操作**
+- 用户选择后，auto-skills 生命周期结束
+- 如果用户选择"立即执行"，Task 会自动开始按依赖顺序执行
+- 如果用户选择"稍后执行"，Task 保持 pending 状态，等待用户手动触发
 
 ---
 
@@ -278,6 +349,8 @@ bash ~/.claude/skills/auto-skills/scripts/generate-final-plan.sh
 6. **保持扁平化执行** - 按顺序一个一个处理子任务，不要嵌套循环
 
 7. **自动迁移技能** - 安装技能后会自动迁移到全局目录，无需手动操作
+
+8. **最终确认必执行** - 创建完所有 Task 后务必弹出确认窗口，让用户决定是否立即执行
 
 ---
 

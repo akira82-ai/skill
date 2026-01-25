@@ -214,12 +214,57 @@ const task3 = await TaskCreate({
 })
 ```
 
+#### 步骤 9：【新增】最终确认
+
+```javascript
+// 弹出确认窗口
+const response = await AskUserQuestion({
+  questions: [{
+    question: `已创建 3 个任务：
+
+1. 写文章
+2. 去除AI味
+3. 保存文件到本地
+
+是否立即开始执行？`,
+    header: "确认执行",
+    options: [
+      {
+        label: "立即执行",
+        description: "开始执行所有任务，按依赖顺序自动完成"
+      },
+      {
+        label: "稍后执行",
+        description: "保持任务为 pending 状态，稍后手动触发执行"
+      }
+    ],
+    multiSelect: false
+  }]
+})
+
+// 根据用户选择输出相应信息
+if (response.confirmExecute === "立即执行") {
+  console.log("✅ 已确认，开始执行 3 个任务")
+} else {
+  console.log("⏸️ 任务已创建，保持 pending 状态")
+  console.log("💡 使用以下命令查看任务：/task-list")
+}
+```
+
 ### 最终输出
 
+**用户选择"立即执行"：**
 ```
-✅ 已创建 3 个任务
+✅ 已确认，开始执行 3 个任务
 📁 工作目录: 0125-写文章去AI味存本地/
-📋 执行计划已生成，Claude Code 将开始执行任务列表
+📋 任务将按依赖顺序自动执行...
+```
+
+**用户选择"稍后执行"：**
+```
+⏸️ 任务已创建，保持 pending 状态
+💡 使用以下命令查看任务：/task-list
+📁 工作目录: 0125-写文章去AI味存本地/
 ```
 
 ---
